@@ -227,6 +227,8 @@ func (c *ingressController) onAdd(obj interface{}) {
 			GroupVersion: ing.GroupVersion(),
 		},
 	})
+
+	c.controller.metricsCollector.IncrEvents("ingress", "add")
 }
 
 func (c *ingressController) onUpdate(oldObj, newObj interface{}) {
@@ -263,6 +265,8 @@ func (c *ingressController) onUpdate(oldObj, newObj interface{}) {
 			OldObject:    prev,
 		},
 	})
+
+	c.controller.metricsCollector.IncrEvents("ingress", "update")
 }
 
 func (c *ingressController) OnDelete(obj interface{}) {
@@ -302,6 +306,8 @@ func (c *ingressController) OnDelete(obj interface{}) {
 		},
 		Tombstone: ing,
 	})
+
+	c.controller.metricsCollector.IncrEvents("ingress", "delete")
 }
 
 func (c *ingressController) isIngressEffective(ing kube.Ingress) bool {

@@ -46,7 +46,7 @@ type Collector interface {
 	IncrSyncOperation(string, string)
 	// IncrEvents increases the number of events handled by controllers with the
 	// operation label.
-	IncrEvents(string)
+	IncrEvents(string, string)
 }
 
 // collector contains necessary messages to collect Prometheus metrics.
@@ -134,7 +134,7 @@ func NewPrometheusCollector() Collector {
 				Help:        "Number of events handled by the controller",
 				ConstLabels: constLabels,
 			},
-			[]string{"operation"},
+			[]string{"resource", "operation"},
 		),
 	}
 
@@ -208,7 +208,7 @@ func (c *collector) IncrSyncOperation(resource, result string) {
 
 // IncrEvents increases the number of events handled by controllers for
 // specific operation.
-func (c *collector) IncrEvents(operation string) {
+func (c *collector) IncrEvents(resource, operation string) {
 	c.controllerEvents.WithLabelValues(operation).Inc()
 }
 

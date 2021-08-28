@@ -173,7 +173,9 @@ func controllerEventsTestHandler(t *testing.T, metrics []*io_prometheus_client.M
 		assert.Equal(t, *m[0].Label[0].Value, "default")
 		assert.Equal(t, *m[0].Label[1].Name, "controller_pod")
 		assert.Equal(t, *m[0].Label[1].Value, "")
-		assert.Equal(t, *m[0].Label[2].Name, "type")
+		assert.Equal(t, *m[0].Label[2].Name, "resource")
+		assert.Equal(t, *m[0].Label[2].Value, "clusterConfig")
+		assert.Equal(t, *m[0].Label[2].Name, "operation")
 		assert.Equal(t, *m[0].Label[2].Value, "update")
 	}
 }
@@ -190,7 +192,7 @@ func TestPrometheusCollector(t *testing.T) {
 	c.IncrCheckClusterHealth("test")
 	c.IncrSyncOperation("schema", "failure")
 	c.IncrSyncOperation("endpoint", "success")
-	c.IncrEvents("update")
+	c.IncrEvents("clusterConfig", "update")
 
 	metrics, err := prometheus.DefaultGatherer.Gather()
 	assert.Nil(t, err)

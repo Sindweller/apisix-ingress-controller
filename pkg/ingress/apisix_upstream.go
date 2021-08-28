@@ -231,6 +231,8 @@ func (c *apisixUpstreamController) onAdd(obj interface{}) {
 		Type:   types.EventAdd,
 		Object: key,
 	})
+
+	c.controller.metricsCollector.IncrEvents("upstream", "add")
 }
 
 func (c *apisixUpstreamController) onUpdate(oldObj, newObj interface{}) {
@@ -256,6 +258,8 @@ func (c *apisixUpstreamController) onUpdate(oldObj, newObj interface{}) {
 		Type:   types.EventUpdate,
 		Object: key,
 	})
+
+	c.controller.metricsCollector.IncrEvents("upstream", "update")
 }
 
 func (c *apisixUpstreamController) onDelete(obj interface{}) {
@@ -284,4 +288,6 @@ func (c *apisixUpstreamController) onDelete(obj interface{}) {
 		Object:    key,
 		Tombstone: au,
 	})
+
+	c.controller.metricsCollector.IncrEvents("upstream", "delete")
 }

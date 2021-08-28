@@ -315,6 +315,8 @@ func (c *apisixRouteController) onAdd(obj interface{}) {
 			GroupVersion: ar.GroupVersion(),
 		},
 	})
+
+	c.controller.metricsCollector.IncrEvents("route", "add")
 }
 
 func (c *apisixRouteController) onUpdate(oldObj, newObj interface{}) {
@@ -343,6 +345,8 @@ func (c *apisixRouteController) onUpdate(oldObj, newObj interface{}) {
 			OldObject:    prev,
 		},
 	})
+
+	c.controller.metricsCollector.IncrEvents("route", "update")
 }
 
 func (c *apisixRouteController) onDelete(obj interface{}) {
@@ -373,4 +377,6 @@ func (c *apisixRouteController) onDelete(obj interface{}) {
 		},
 		Tombstone: ar,
 	})
+
+	c.controller.metricsCollector.IncrEvents("route", "delete")
 }

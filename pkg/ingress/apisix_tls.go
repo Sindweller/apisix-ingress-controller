@@ -199,6 +199,8 @@ func (c *apisixTlsController) onAdd(obj interface{}) {
 		Type:   types.EventAdd,
 		Object: key,
 	})
+
+	c.controller.metricsCollector.IncrEvents("Tls", "add")
 }
 
 func (c *apisixTlsController) onUpdate(prev, curr interface{}) {
@@ -223,6 +225,8 @@ func (c *apisixTlsController) onUpdate(prev, curr interface{}) {
 		Type:   types.EventUpdate,
 		Object: key,
 	})
+
+	c.controller.metricsCollector.IncrEvents("Tls", "update")
 }
 
 func (c *apisixTlsController) onDelete(obj interface{}) {
@@ -253,4 +257,6 @@ func (c *apisixTlsController) onDelete(obj interface{}) {
 		Object:    key,
 		Tombstone: tls,
 	})
+
+	c.controller.metricsCollector.IncrEvents("Tls", "delete")
 }
