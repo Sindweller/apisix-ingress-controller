@@ -131,11 +131,9 @@ func (c *apisixConsumerController) sync(ctx context.Context, ev *types.Event) er
 		)
 		c.controller.recorderEvent(ac, corev1.EventTypeWarning, _resourceSyncAborted, err)
 		c.controller.recordStatus(ac, _resourceSyncAborted, err, metav1.ConditionFalse)
-		c.controller.metricsCollector.IncrSyncOperation("consumer", "failure")
 		return err
 	}
 
-	c.controller.metricsCollector.IncrSyncOperation("consumer", "success")
 	c.controller.recorderEvent(ac, corev1.EventTypeNormal, _resourceSynced, nil)
 	return nil
 }
@@ -143,6 +141,7 @@ func (c *apisixConsumerController) sync(ctx context.Context, ev *types.Event) er
 func (c *apisixConsumerController) handleSyncErr(obj interface{}, err error) {
 	if err == nil {
 		c.workqueue.Forget(obj)
+		c.controller.metricsCollector.IncrSyncOperation("consumer", "success")
 		return
 	}
 	log.Warnw("sync ApisixConsumer failed, will retry",
@@ -150,6 +149,7 @@ func (c *apisixConsumerController) handleSyncErr(obj interface{}, err error) {
 		zap.Error(err),
 	)
 	c.workqueue.AddRateLimited(obj)
+	c.controller.metricsCollector.IncrSyncOperation("consumer", "failure")
 }
 
 func (c *apisixConsumerController) onAdd(obj interface{}) {

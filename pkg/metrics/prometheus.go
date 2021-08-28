@@ -44,6 +44,9 @@ type Collector interface {
 	// IncrSyncOperation increases the number of sync operations with the resource
 	// type label.
 	IncrSyncOperation(string, string)
+	// IncrEvents increases the number of events handled by controllers with the
+	// operation label.
+	IncrEvents(string)
 }
 
 // collector contains necessary messages to collect Prometheus metrics.
@@ -54,6 +57,7 @@ type collector struct {
 	apisixCodes        *prometheus.GaugeVec
 	checkClusterHealth *prometheus.CounterVec
 	syncOperation      *prometheus.CounterVec
+	controllerEvents   *prometheus.CounterVec
 }
 
 // NewPrometheusCollectors creates the Prometheus metrics collector.
@@ -123,6 +127,15 @@ func NewPrometheusCollector() Collector {
 			},
 			[]string{"resource", "result"},
 		),
+		controllerEvents: prometheus.NewCounterVec(
+			prometheus.CounterOpts{
+				Namespace:   _namespace,
+				Name:        "events_total",
+				Help:        "Number of events handled by the controller",
+				ConstLabels: constLabels,
+			},
+			[]string{"operation"},
+		),
 	}
 
 	// Since we use the DefaultRegisterer, in test cases, the metrics
@@ -133,6 +146,7 @@ func NewPrometheusCollector() Collector {
 	prometheus.Unregister(collector.apisixRequests)
 	prometheus.Unregister(collector.checkClusterHealth)
 	prometheus.Unregister(collector.syncOperation)
+	prometheus.Unregister(collector.controllerEvents)
 
 	prometheus.MustRegister(
 		collector.isLeader,
@@ -141,6 +155,7 @@ func NewPrometheusCollector() Collector {
 		collector.apisixRequests,
 		collector.checkClusterHealth,
 		collector.syncOperation,
+		collector.controllerEvents,
 	)
 
 	return collector
@@ -191,6 +206,12 @@ func (c *collector) IncrSyncOperation(resource, result string) {
 	}).Inc()
 }
 
+// IncrEvents increases the number of events handled by controllers for
+// specific operation.
+func (c *collector) IncrEvents(operation string) {
+	c.controllerEvents.WithLabelValues(operation).Inc()
+}
+
 // Collect collects the prometheus.Collect.
 func (c *collector) Collect(ch chan<- prometheus.Metric) {
 	c.isLeader.Collect(ch)
@@ -200,6 +221,7 @@ func (c *collector) Collect(ch chan<- prometheus.Metric) {
 	c.apisixCodes.Collect(ch)
 	c.checkClusterHealth.Collect(ch)
 	c.syncOperation.Collect(ch)
+	c.controllerEvents.Collect(ch)
 }
 
 // Describe describes the prometheus.Describe.
@@ -211,4 +233,5 @@ func (c *collector) Describe(ch chan<- *prometheus.Desc) {
 	c.apisixCodes.Describe(ch)
 	c.checkClusterHealth.Describe(ch)
 	c.syncOperation.Describe(ch)
+	c.controllerEvents.Describe(ch)
 }

@@ -204,6 +204,7 @@ func (c *apisixUpstreamController) sync(ctx context.Context, ev *types.Event) er
 func (c *apisixUpstreamController) handleSyncErr(obj interface{}, err error) {
 	if err == nil {
 		c.workqueue.Forget(obj)
+		c.controller.metricsCollector.IncrSyncOperation("upstream", "success")
 		return
 	}
 	log.Warnw("sync ApisixUpstream failed, will retry",
@@ -211,6 +212,7 @@ func (c *apisixUpstreamController) handleSyncErr(obj interface{}, err error) {
 		zap.Error(err),
 	)
 	c.workqueue.AddRateLimited(obj)
+	c.controller.metricsCollector.IncrSyncOperation("upstream", "failure")
 }
 
 func (c *apisixUpstreamController) onAdd(obj interface{}) {

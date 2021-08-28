@@ -187,12 +187,14 @@ func (c *apisixClusterConfigController) sync(ctx context.Context, ev *types.Even
 func (c *apisixClusterConfigController) handleSyncErr(obj interface{}, err error) {
 	if err == nil {
 		c.workqueue.Forget(obj)
+		c.controller.metricsCollector.IncrSyncOperation("clusterConfig", "success")
 		return
 	}
 	log.Warnw("sync ApisixClusterConfig failed, will retry",
 		zap.Any("object", obj),
 		zap.Error(err),
 	)
+	c.controller.metricsCollector.IncrSyncOperation("clusterConfig", "failure")
 	c.workqueue.AddRateLimited(obj)
 }
 

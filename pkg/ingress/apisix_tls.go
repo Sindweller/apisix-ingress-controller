@@ -172,7 +172,7 @@ func (c *apisixTlsController) syncSecretSSL(secretKey string, apisixTlsKey strin
 func (c *apisixTlsController) handleSyncErr(obj interface{}, err error) {
 	if err == nil {
 		c.workqueue.Forget(obj)
-		c.controller.metricsCollector.IncrSyncOperation("ssl", "success")
+		c.controller.metricsCollector.IncrSyncOperation("Tls", "success")
 		return
 	}
 	log.Warnw("sync ApisixTls failed, will retry",
@@ -180,7 +180,7 @@ func (c *apisixTlsController) handleSyncErr(obj interface{}, err error) {
 		zap.Error(err),
 	)
 	c.workqueue.AddRateLimited(obj)
-	c.controller.metricsCollector.IncrSyncOperation("ssl", "failure")
+	c.controller.metricsCollector.IncrSyncOperation("Tls", "failure")
 }
 
 func (c *apisixTlsController) onAdd(obj interface{}) {

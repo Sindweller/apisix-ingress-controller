@@ -186,6 +186,7 @@ func (c *ingressController) sync(ctx context.Context, ev *types.Event) error {
 func (c *ingressController) handleSyncErr(obj interface{}, err error) {
 	if err == nil {
 		c.workqueue.Forget(obj)
+		c.controller.metricsCollector.IncrSyncOperation("ingress", "success")
 		return
 	}
 	log.Warnw("sync ingress failed, will retry",
@@ -193,6 +194,7 @@ func (c *ingressController) handleSyncErr(obj interface{}, err error) {
 		zap.Error(err),
 	)
 	c.workqueue.AddRateLimited(obj)
+	c.controller.metricsCollector.IncrSyncOperation("ingress", "failure")
 }
 
 func (c *ingressController) onAdd(obj interface{}) {
