@@ -160,11 +160,13 @@ func (c *cluster) syncCache(ctx context.Context) {
 				zap.String("cost_time", time.Since(now).String()),
 				zap.String("cluster", c.name),
 			)
+			c.metricsCollector.IncrCacheSyncOperation("success")
 		} else {
 			log.Errorw("failed to sync cache",
 				zap.String("cost_time", time.Since(now).String()),
 				zap.String("cluster", c.name),
 			)
+			c.metricsCollector.IncrCacheSyncOperation("failure")
 		}
 	}()
 
