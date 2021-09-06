@@ -493,7 +493,9 @@ func (c *cluster) getResource(ctx context.Context, url string) (*getResponse, er
 	if err != nil {
 		return nil, err
 	}
+	start := time.Now()
 	resp, err := c.do(req)
+	c.metricsCollector.RecordAPISIXLatency(time.Now().Sub(start))
 	if err != nil {
 		return nil, err
 	}
@@ -522,7 +524,9 @@ func (c *cluster) listResource(ctx context.Context, url string) (*listResponse, 
 	if err != nil {
 		return nil, err
 	}
+	start := time.Now()
 	resp, err := c.do(req)
+	c.metricsCollector.RecordAPISIXLatency(time.Now().Sub(start))
 	if err != nil {
 		return nil, err
 	}
@@ -547,7 +551,9 @@ func (c *cluster) createResource(ctx context.Context, url string, body io.Reader
 	if err != nil {
 		return nil, err
 	}
+	start := time.Now()
 	resp, err := c.do(req)
+	c.metricsCollector.RecordAPISIXLatency(time.Now().Sub(start))
 	if err != nil {
 		return nil, err
 	}
@@ -573,7 +579,9 @@ func (c *cluster) updateResource(ctx context.Context, url string, body io.Reader
 	if err != nil {
 		return nil, err
 	}
+	start := time.Now()
 	resp, err := c.do(req)
+	c.metricsCollector.RecordAPISIXLatency(time.Now().Sub(start))
 	if err != nil {
 		return nil, err
 	}
@@ -597,7 +605,9 @@ func (c *cluster) deleteResource(ctx context.Context, url string) error {
 	if err != nil {
 		return err
 	}
+	start := time.Now()
 	resp, err := c.do(req)
+	c.metricsCollector.RecordAPISIXLatency(time.Now().Sub(start))
 	if err != nil {
 		return err
 	}
@@ -655,7 +665,9 @@ func (c *cluster) getSchema(ctx context.Context, url string) (string, error) {
 	if err != nil {
 		return "", err
 	}
+	start := time.Now()
 	resp, err := c.do(req)
+	c.metricsCollector.RecordAPISIXLatency(time.Now().Sub(start))
 	if err != nil {
 		return "", err
 	}
@@ -679,7 +691,9 @@ func (c *cluster) getList(ctx context.Context, url string) ([]string, error) {
 	if err != nil {
 		return nil, err
 	}
+	start := time.Now()
 	resp, err := c.do(req)
+	c.metricsCollector.RecordAPISIXLatency(time.Now().Sub(start))
 	if err != nil {
 		return nil, err
 	}

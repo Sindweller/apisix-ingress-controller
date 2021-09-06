@@ -91,7 +91,7 @@ func NewPrometheusCollector() Collector {
 			prometheus.GaugeOpts{
 				Name:        "apisix_bad_status_codes",
 				Namespace:   _namespace,
-				Help:        "Whether the role of controller instance is leader",
+				Help:        "Bad status codes of requests to APISIX",
 				ConstLabels: constLabels,
 			},
 			[]string{"resource", "status_code"},
