@@ -45,6 +45,13 @@ type ApisixRouteSpec struct {
 	Stream []ApisixRouteStream `json:"stream,omitempty" yaml:"stream,omitempty"`
 }
 
+// UpstreamTimeout is settings for the read, send and connect to the upstream.
+type UpstreamTimeout struct {
+	Connect metav1.Duration `json:"connect,omitempty" yaml:"connect,omitempty"`
+	Send    metav1.Duration `json:"send,omitempty" yaml:"send,omitempty"`
+	Read    metav1.Duration `json:"read,omitempty" yaml:"read,omitempty"`
+}
+
 // ApisixRouteHTTP represents a single route in for HTTP traffic.
 type ApisixRouteHTTP struct {
 	// The rule name, cannot be empty.
@@ -53,13 +60,14 @@ type ApisixRouteHTTP struct {
 	// same URI path (for path matching), route with
 	// higher priority will take effect.
 	Priority int                  `json:"priority,omitempty" yaml:"priority,omitempty"`
+	Timeout  *UpstreamTimeout     `json:"timeout,omitempty" yaml:"timeout,omitempty"`
 	Match    ApisixRouteHTTPMatch `json:"match,omitempty" yaml:"match,omitempty"`
 	// Deprecated: Backend will be removed in the future, use Backends instead.
-	Backend v2alpha1.ApisixRouteHTTPBackend `json:"backend" yaml:"backend"`
+	Backend v2alpha1.ApisixRouteHTTPBackend `json:"backend,omitempty" yaml:"backend,omitempty"`
 	// Backends represents potential backends to proxy after the route
 	// rule matched. When number of backends are more than one, traffic-split
 	// plugin in APISIX will be used to split traffic based on the backend weight.
-	Backends       []v2alpha1.ApisixRouteHTTPBackend `json:"backends" yaml:"backends"`
+	Backends       []v2alpha1.ApisixRouteHTTPBackend `json:"backends,omitempty" yaml:"backends,omitempty"`
 	Websocket      bool                              `json:"websocket" yaml:"websocket"`
 	Plugins        []ApisixRouteHTTPPlugin           `json:"plugins,omitempty" yaml:"plugins,omitempty"`
 	Authentication ApisixRouteAuthentication         `json:"authentication,omitempty" yaml:"authentication,omitempty"`
@@ -175,10 +183,10 @@ type ApisixRouteStreamBackend struct {
 	// when set to "endpoints", the pod ips will be used; other
 	// wise, the service ClusterIP or ExternalIP will be used,
 	// default is endpoints.
-	ResolveGranularity string `json:"resolveGranularity" yaml:"resolveGranularity"`
+	ResolveGranularity string `json:"resolveGranularity,omitempty" yaml:"resolveGranularity,omitempty"`
 	// Subset specifies a subset for the target Service. The subset should be pre-defined
 	// in ApisixUpstream about this service.
-	Subset string `json:"subset" yaml:"subset"`
+	Subset string `json:"subset,omitempty" yaml:"subset,omitempty"`
 }
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object

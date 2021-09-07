@@ -16,7 +16,7 @@
 #
 default: help
 
-VERSION ?= 1.1.0
+VERSION ?= 1.2.0
 RELEASE_SRC = apache-apisix-ingress-controller-${VERSION}-src
 LOCAL_REGISTRY="localhost:5000"
 IMAGE_TAG ?= dev
@@ -104,6 +104,10 @@ ifeq ($(E2E_SKIP_BUILD), 0)
 	docker pull jmalloc/echo-server:latest
 	docker tag  jmalloc/echo-server:latest $(LOCAL_REGISTRY)/jmalloc/echo-server:latest
 	docker push $(LOCAL_REGISTRY)/jmalloc/echo-server:latest
+
+	docker pull busybox:1.28
+	docker tag  busybox:1.28 $(LOCAL_REGISTRY)/busybox:1.28
+	docker push $(LOCAL_REGISTRY)/busybox:1.28
 endif
 
 ### kind-up:              Launch a Kubernetes cluster with a image registry by Kind.
