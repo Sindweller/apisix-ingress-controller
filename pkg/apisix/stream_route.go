@@ -111,7 +111,7 @@ func (r *streamRouteClient) List(ctx context.Context) ([]*v1.StreamRoute, error)
 		zap.String("cluster", "default"),
 		zap.String("url", r.url),
 	)
-	streamRouteItems, err := r.cluster.listResource(ctx, r.url)
+	streamRouteItems, err := r.cluster.listResource(ctx, r.url, "streamRoute")
 	r.cluster.metricsCollector.IncrAPISIXRequest("streamRoute")
 	if err != nil {
 		log.Errorf("failed to list stream_routes: %s", err)
@@ -155,7 +155,7 @@ func (r *streamRouteClient) Create(ctx context.Context, obj *v1.StreamRoute) (*v
 
 	url := r.url + "/" + obj.ID
 	log.Debugw("creating stream_route", zap.ByteString("body", data), zap.String("url", url))
-	resp, err := r.cluster.createResource(ctx, url, bytes.NewReader(data))
+	resp, err := r.cluster.createResource(ctx, url, "streamRoute", bytes.NewReader(data))
 	r.cluster.metricsCollector.IncrAPISIXRequest("streamRoute")
 	if err != nil {
 		log.Errorf("failed to create stream_route: %s", err)
@@ -183,7 +183,7 @@ func (r *streamRouteClient) Delete(ctx context.Context, obj *v1.StreamRoute) err
 		return err
 	}
 	url := r.url + "/" + obj.ID
-	if err := r.cluster.deleteResource(ctx, url); err != nil {
+	if err := r.cluster.deleteResource(ctx, url, "streamRoute"); err != nil {
 		r.cluster.metricsCollector.IncrAPISIXRequest("streamRoute")
 		return err
 	}
@@ -212,7 +212,7 @@ func (r *streamRouteClient) Update(ctx context.Context, obj *v1.StreamRoute) (*v
 	}
 	url := r.url + "/" + obj.ID
 	log.Debugw("updating stream_route", zap.ByteString("body", body), zap.String("url", url))
-	resp, err := r.cluster.updateResource(ctx, url, bytes.NewReader(body))
+	resp, err := r.cluster.updateResource(ctx, url, "streamRoute", bytes.NewReader(body))
 	r.cluster.metricsCollector.IncrAPISIXRequest("streamRoute")
 	if err != nil {
 		return nil, err
