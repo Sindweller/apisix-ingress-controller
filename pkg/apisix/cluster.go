@@ -529,6 +529,7 @@ func (c *cluster) listResource(ctx context.Context, url, resource string) (*list
 	start := time.Now()
 	resp, err := c.do(req)
 	if err != nil {
+		c.metricsCollector.IncrAPISIXRequestsError(resource, "list")
 		return nil, err
 	}
 	c.metricsCollector.RecordAPISIXLatency(time.Since(start), "list")
@@ -558,6 +559,7 @@ func (c *cluster) createResource(ctx context.Context, url, resource string, body
 	start := time.Now()
 	resp, err := c.do(req)
 	if err != nil {
+		c.metricsCollector.IncrAPISIXRequestsError(resource, "create")
 		return nil, err
 	}
 	c.metricsCollector.RecordAPISIXLatency(time.Since(start), "create")
@@ -587,6 +589,7 @@ func (c *cluster) updateResource(ctx context.Context, url, resource string, body
 	start := time.Now()
 	resp, err := c.do(req)
 	if err != nil {
+		c.metricsCollector.IncrAPISIXRequestsError(resource, "update")
 		return nil, err
 	}
 	c.metricsCollector.RecordAPISIXLatency(time.Since(start), "update")
@@ -615,6 +618,7 @@ func (c *cluster) deleteResource(ctx context.Context, url, resource string) erro
 	start := time.Now()
 	resp, err := c.do(req)
 	if err != nil {
+		c.metricsCollector.IncrAPISIXRequestsError(resource, "delete")
 		return err
 	}
 	c.metricsCollector.RecordAPISIXLatency(time.Since(start), "delete")
@@ -677,6 +681,7 @@ func (c *cluster) getSchema(ctx context.Context, url, resource string) (string, 
 	start := time.Now()
 	resp, err := c.do(req)
 	if err != nil {
+		c.metricsCollector.IncrAPISIXRequestsError(resource, "getSchema")
 		return "", err
 	}
 	c.metricsCollector.RecordAPISIXLatency(time.Since(start), "getSchema")
@@ -705,6 +710,7 @@ func (c *cluster) getList(ctx context.Context, url, resource string) ([]string, 
 	start := time.Now()
 	resp, err := c.do(req)
 	if err != nil {
+		c.metricsCollector.IncrAPISIXRequestsError(resource, "getList")
 		return nil, err
 	}
 	c.metricsCollector.RecordAPISIXLatency(time.Since(start), "getList")

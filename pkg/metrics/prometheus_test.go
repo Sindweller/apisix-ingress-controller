@@ -25,7 +25,7 @@ import (
 
 func apisixBadStatusCodesTestHandler(t *testing.T, metrics []*io_prometheus_client.MetricFamily) func(*testing.T) {
 	return func(t *testing.T) {
-		metric := findMetric("apisix_ingress_controller_apisix_bad_status_codes", metrics)
+		metric := findMetric("apisix_ingress_controller_apisix_status_codes", metrics)
 		assert.NotNil(t, metric)
 		assert.Equal(t, metric.Type.String(), "GAUGE")
 		m := metric.GetMetric()
@@ -111,6 +111,26 @@ func apisixRequestTestHandler(t *testing.T, metrics []*io_prometheus_client.Metr
 		assert.Equal(t, *m[1].Label[1].Value, "")
 		assert.Equal(t, *m[1].Label[2].Name, "resource")
 		assert.Equal(t, *m[1].Label[2].Value, "upstream")
+	}
+}
+
+func apisixRequestsErrorTestHandler(t *testing.T, metrics []*io_prometheus_client.MetricFamily) func(t *testing.T) {
+	return func(t *testing.T) {
+		metric := findMetric("apisix_ingress_controller_apisix_requests_error_total", metrics)
+		assert.NotNil(t, metric)
+		assert.Equal(t, metric.Type.String(), "COUNTER")
+		m := metric.GetMetric()
+		assert.Len(t, m, 1)
+
+		assert.Equal(t, *m[0].Counter.Value, float64(1))
+		assert.Equal(t, *m[0].Label[0].Name, "controller_namespace")
+		assert.Equal(t, *m[0].Label[0].Value, "default")
+		assert.Equal(t, *m[0].Label[1].Name, "controller_pod")
+		assert.Equal(t, *m[0].Label[1].Value, "")
+		assert.Equal(t, *m[0].Label[2].Name, "operation")
+		assert.Equal(t, *m[0].Label[2].Value, "list")
+		assert.Equal(t, *m[0].Label[3].Name, "resource")
+		assert.Equal(t, *m[0].Label[3].Value, "route")
 	}
 }
 
@@ -209,6 +229,7 @@ func TestPrometheusCollector(t *testing.T) {
 	c.IncrAPISIXRequest("route")
 	c.IncrAPISIXRequest("route")
 	c.IncrAPISIXRequest("upstream")
+	c.IncrAPISIXRequestsError("route", "list")
 	c.IncrCheckClusterHealth("test")
 	c.IncrSyncOperation("schema", "failure")
 	c.IncrSyncOperation("endpoint", "success")
@@ -218,10 +239,11 @@ func TestPrometheusCollector(t *testing.T) {
 	metrics, err := prometheus.DefaultGatherer.Gather()
 	assert.Nil(t, err)
 
-	t.Run("apisix_bad_status_codes", apisixBadStatusCodesTestHandler(t, metrics))
+	t.Run("apisix_status_codes", apisixBadStatusCodesTestHandler(t, metrics))
 	t.Run("is_leader", isLeaderTestHandler(t, metrics))
 	t.Run("apisix_request_latencies", apisixLatencyTestHandler(t, metrics))
 	t.Run("apisix_requests", apisixRequestTestHandler(t, metrics))
+	t.Run("apisix_requests_error_total", apisixRequestsErrorTestHandler(t, metrics))
 	t.Run("check_cluster_health_total", checkClusterHealthTestHandler(t, metrics))
 	t.Run("sync_operation_total", syncOperationTestHandler(t, metrics))
 	t.Run("cache_sync_total", cacheSncOperationTestHandler(t, metrics))

@@ -38,6 +38,8 @@ type Collector interface {
 	RecordAPISIXLatency(time.Duration, string)
 	// IncrAPISIXRequest increases the number of requests to apisix.
 	IncrAPISIXRequest(string)
+	// IncrAPISIXRequest increases the number of requests error to apisix.
+	IncrAPISIXRequestsError(string, string)
 	// IncrCheckClusterHealth increases the number of cluster health check operations
 	// with the cluster name label.
 	IncrCheckClusterHealth(string)
@@ -54,14 +56,15 @@ type Collector interface {
 
 // collector contains necessary messages to collect Prometheus metrics.
 type collector struct {
-	isLeader           prometheus.Gauge
-	apisixLatency      *prometheus.SummaryVec
-	apisixRequests     *prometheus.CounterVec
-	apisixCodes        *prometheus.GaugeVec
-	checkClusterHealth *prometheus.CounterVec
-	syncOperation      *prometheus.CounterVec
-	cacheSyncOperation *prometheus.CounterVec
-	controllerEvents   *prometheus.CounterVec
+	isLeader            prometheus.Gauge
+	apisixLatency       *prometheus.SummaryVec
+	apisixRequests      *prometheus.CounterVec
+	apisixRequestsError *prometheus.CounterVec
+	apisixCodes         *prometheus.GaugeVec
+	checkClusterHealth  *prometheus.CounterVec
+	syncOperation       *prometheus.CounterVec
+	cacheSyncOperation  *prometheus.CounterVec
+	controllerEvents    *prometheus.CounterVec
 }
 
 // NewPrometheusCollectors creates the Prometheus metrics collector.
@@ -89,7 +92,7 @@ func NewPrometheusCollector() Collector {
 		),
 		apisixCodes: prometheus.NewGaugeVec(
 			prometheus.GaugeOpts{
-				Name:        "apisix_bad_status_codes",
+				Name:        "apisix_status_codes",
 				Namespace:   _namespace,
 				Help:        "Status codes of requests to APISIX",
 				ConstLabels: constLabels,
@@ -113,6 +116,15 @@ func NewPrometheusCollector() Collector {
 				ConstLabels: constLabels,
 			},
 			[]string{"resource"},
+		),
+		apisixRequestsError: prometheus.NewCounterVec(
+			prometheus.CounterOpts{
+				Namespace:   _namespace,
+				Name:        "apisix_requests_error_total",
+				Help:        "Number of requests error to APISIX",
+				ConstLabels: constLabels,
+			},
+			[]string{"resource", "operation"},
 		),
 		checkClusterHealth: prometheus.NewCounterVec(
 			prometheus.CounterOpts{
@@ -158,6 +170,7 @@ func NewPrometheusCollector() Collector {
 	prometheus.Unregister(collector.apisixCodes)
 	prometheus.Unregister(collector.apisixLatency)
 	prometheus.Unregister(collector.apisixRequests)
+	prometheus.Unregister(collector.apisixRequestsError)
 	prometheus.Unregister(collector.checkClusterHealth)
 	prometheus.Unregister(collector.syncOperation)
 	prometheus.Unregister(collector.cacheSyncOperation)
@@ -168,6 +181,7 @@ func NewPrometheusCollector() Collector {
 		collector.apisixCodes,
 		collector.apisixLatency,
 		collector.apisixRequests,
+		collector.apisixRequestsError,
 		collector.checkClusterHealth,
 		collector.syncOperation,
 		collector.cacheSyncOperation,
@@ -207,6 +221,15 @@ func (c *collector) IncrAPISIXRequest(resource string) {
 	c.apisixRequests.WithLabelValues(resource).Inc()
 }
 
+// IncrAPISIXRequestError increases the number of requests error for
+// specific resource to APISIX
+func (c *collector) IncrAPISIXRequestsError(resource, operation string) {
+	c.apisixRequestsError.With(prometheus.Labels{
+		"resource":  resource,
+		"operation": operation,
+	}).Inc()
+}
+
 // IncrCheckClusterHealth increases the number of cluster health check
 // operations.
 func (c *collector) IncrCheckClusterHealth(name string) {
@@ -242,6 +265,7 @@ func (c *collector) Collect(ch chan<- prometheus.Metric) {
 	c.isLeader.Collect(ch)
 	c.apisixLatency.Collect(ch)
 	c.apisixRequests.Collect(ch)
+	c.apisixRequestsError.Collect(ch)
 	c.apisixCodes.Collect(ch)
 	c.checkClusterHealth.Collect(ch)
 	c.syncOperation.Collect(ch)
@@ -254,6 +278,7 @@ func (c *collector) Describe(ch chan<- *prometheus.Desc) {
 	c.isLeader.Describe(ch)
 	c.apisixLatency.Describe(ch)
 	c.apisixRequests.Describe(ch)
+	c.apisixRequestsError.Describe(ch)
 	c.apisixCodes.Describe(ch)
 	c.checkClusterHealth.Describe(ch)
 	c.syncOperation.Describe(ch)
