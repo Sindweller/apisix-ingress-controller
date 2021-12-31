@@ -25,26 +25,18 @@ This guide shows how to monitor Apache APISIX Ingress Controller using Prometheu
 
 ## Enable Prometheus
 
-You can find example CRD files in `apisix-ingress-controller/samples/deploy/crd/v1`.  
-The CRD file `ApisixClusterConfig` is required to use to enable prometheus in global configurations.  
-In `ApisixClusterConfig`, `monitoring.prometheus` field is used to describe Prometheus settings.
+Use CRD file to enable Prometheus. The configuration should be:
 ```yaml
-...
-monitoring:
-  type: object
-  properties:
+apiVersion: apisix.apache.org/v2beta3
+kind: ApisixClusterConfig
+metadata:
+  name: default
+spec:
+  monitoring:
     prometheus:
-      type: object
-      properties:
-        enable:
-          type: boolean
-...
+      enable: true
 ```
-Now apply `ApisixClusterConfig` by:
-```
-cd apisix-ingress-controller/samples/deploy/crd/v1
-kubectl apply -f ApisixClusterConfig.yaml 
-```
+
 ## Configure Prometheus Server
 
 The Prometheus server address should be `127.0.0.1:9090` by default. You can set the target url for `apisix-ingress-controller` manually in `prometheus.yml`. 
@@ -81,42 +73,42 @@ Follow the steps to apply the configuration of Grafana Dashboard for `apisix-ing
 ![dashboard_view_3.png](../../../assets/images/dashboard_view_3.png)
 
 ## Available metrics
-- `Is leader`: A gauge type metric with value 0 or 1, indicates whether the role of controller instance is leader, for leader is 1 and candidate is 0.  
+- `Is leader` A gauge type metric with value 0 or 1, indicates whether the role of controller instance is leader, for leader is 1 and candidate is 0.  
 Labels:
   - controller_pod
   - controller_namespace
-- `Status codes`: status codes of requests to APISIX.  
+- `Status codes` status codes of requests to APISIX.  
 Labels:
   - controller_pod
   - controller_namespace
   - status_code: the HTTP status code returned by APISIX.  
   - resource
-- `Latency`: Request latencies with APISIX.  
+- `Latency` Request latencies with APISIX.  
 Labels:
   - controller_pod
   - controller_namespace
-- `Requests`: Number of requests to APISIX.  
+- `Requests` Number of requests to APISIX.  
 Labels:
   - controller_pod
   - controller_namespace
   - resource
-- `Check cluster health`: Number of cluster health check operations.  
+- `Check cluster health` Number of cluster health check operations.  
 Labels:
   - controller_pod
   - controller_namespace
   - name: cluster name.
-- `Sync operation`: Number of sync operations.  
+- `Sync operation` Number of sync operations.  
 Labels:
   - controller_pod
   - controller_namespace
   - resource
   - result: sync success or failure.
-- `Cache sync`: Number of cache sync operations.  
+- `Cache sync` Number of cache sync operations.  
 Labels:
   - controller_pod
   - controller_namespace
   - result: sync success or failure.
-- `Controller events`: Number of events handled by the controller.  
+- `Controller events` Number of events handled by the controller.  
 Labels:
   - controller_pod
   - controller_namespace
